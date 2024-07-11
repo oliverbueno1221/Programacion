@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <string.h>
+
+/* Declaración de una unión. */
+union datos {
+    char celular[15];
+    char correo[20];
+};
+
+/* Declaración de una estructura utilizando typedef. */
+typedef struct {
+    int matricula;
+    char nombre[20];
+    char carrera[20];
+    float promedio;
+    union datos personales;
+} alumno;
+
+/* Prototipo de función. */
+void Lectura(alumno *a);
+
+void main(void) {
+    alumno a1 = {120, "María", "Contabilidad", 8.9, "5-158-40-50"}, a2, a3;
+
+    printf("Alumno 2\n");
+    printf("Ingrese la matrícula: ");
+    scanf("%d", &a2.matricula);
+    fflush(stdin);
+    printf("Ingrese el nombre: ");
+    gets(a2.nombre);
+    fflush(stdin);
+    printf("Ingrese la carrera: ");
+    gets(a2.carrera);
+    printf("Ingrese el promedio: ");
+    scanf("%f", &a2.promedio);
+    fflush(stdin);
+    printf("Ingrese el correo electrónico: ");
+    gets(a2.personales.correo);
+
+    printf("Alumno 3\n");
+    Lectura(&a3); /* Se llama a una función para leer los campos de la variable a3. */
+
+    /* Impresión de resultados. */
+    printf("\nDatos del alumno 1\n");
+    printf("%d\n", a1.matricula);
+    puts(a1.nombre);
+    puts(a1.carrera);
+    printf("%.2f\n", a1.promedio);
+    puts(a1.personales.celular); /* Escribe el contenido del teléfono celular asignado. */
+    /* Observa que si tratamos de imprimir el campo correo, escribe basura. */
+    strcpy(a1.personales.correo, "hgimenez@hotmail.com"); /* Se ingresa un valor al segundo campo de la unión de la variable a1. */
+    puts(a1.personales.celular); /* Ahora escribe basura en el campo del teléfono celular. */
+    puts(a1.personales.correo); /* Escribe el contenido del campo (hgimenez@hotmail.com). */
+
+    printf("\nDatos del alumno 2\n");
+    printf("%d\n", a2.matricula);
+    puts(a2.nombre);
+    puts(a2.carrera);
+    printf("%.2f\n", a2.promedio);
+    puts(a2.personales.celular); /* Escribe el teléfono celular ingresado. */
+    /* Ahora escribe basura en el campo del correo electrónico. */
+    puts(a2.personales.correo);
+
+    printf("\nDatos del alumno 3\n");
+    printf("%d\n", a3.matricula);
+    puts(a3.nombre);
+    puts(a3.carrera);
+    printf("%.2f\n", a3.promedio);
+    puts(a3.personales.celular); /* Escribe el contenido del teléfono celular ingresado. */
+    /* Ahora escribe basura en el campo del correo electrónico. */
+    puts(a3.personales.correo);
+}
+
+/* La función Lectura se utiliza para leer los campos de una variable de tipo estructura alumno. */
+void Lectura(alumno *a) {
+    printf("\nIngrese la matrícula: ");
+    scanf("%d", &(*a).matricula);
+    fflush(stdin);
+    printf("Ingrese el nombre: ");
+    gets(a->nombre);
+    fflush(stdin);
+    printf("Ingrese la carrera: ");
+    gets((*a).carrera);
+    printf("Ingrese el promedio: ");
+    scanf("%f", &a->promedio);
+    fflush(stdin);
+    printf("Ingrese el teléfono celular: ");
+    gets(a->personales.celular);
+}
