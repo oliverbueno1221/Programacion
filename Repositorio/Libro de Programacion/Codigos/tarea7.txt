@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char nombre[50];
+    int edad;
+    float calificacion;
+} Alumno;
+
+Alumno leerAlumno() {
+    Alumno a;
+    printf("Ingrese nombre del alumno: ");
+    scanf("%s", a.nombre);
+    printf("Ingrese edad del alumno: ");
+    scanf("%d", &a.edad);
+    printf("Ingrese calificación del alumno: ");
+    scanf("%f", &a.calificacion);
+    return a;
+}
+
+void guardarDatos(Alumno *alumnos, int n) {
+    FILE *file = fopen("alumnos.dat", "wb");
+    if (file == NULL) {
+        printf("Error al abrir el archivo para escribir.\n");
+        return;
+    }
+    fwrite(alumnos, sizeof(Alumno), n, file);
+    fclose(file);
+}
+
+Alumno* leerDatos(int *n) {
+    FILE *file = fopen("alumnos.dat", "rb");
+    if (file == NULL) {
+        printf("Error al abrir el archivo para leer.\n");
+        return NULL;
+    }
+
+    fseek(file, 0, SEEK_END);
+    long filesize = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    *n = filesize / sizeof(Alumno);
+    Alumno *alumnos = (Alumno *)malloc(filesize);
+    if (alumnos == NULL) {
+        printf("Error al asignar memoria.\n");
+        fclose(file);
+        return NULL;
+    }
+
+    fread(alumnos, sizeof(Alumno), *n, file);
+    fclose(file);
+    return alumnos;
+}
+
+void imprimirDatos(Alumno *alumnos, int n) {
+    for (int i = 0; i < n; i++) {
+        printf("Nombre: %s, Edad: %d, Calificación: %.2f\n", alumnos[i].nombre, alumnos[i].edad, alumnos[i].calificacion);
+    }
+}
+
+int main() {
+    Alumno *alumnos = NULL;
+    int n = 0;
+    int opcion;
+
+    do {
+        printf("\n--- Menú ---\n");
+        printf("1. Leer disco\n");
+        printf("2. Grabar dato\n");
+        printf("0. Salir\n");
+        printf("Seleccione una opción: ");
+        scanf("%d", &opcion);
+
+        switch(opcion) {
+            case 1:
+                free(alumnos);
+                alumnos = leerDatos(&n);
+                if (alumnos != NULL) {
+                    printf("Datos leídos desde el disco:\n");
+                    imprimirDatos(alumnos, n);
+                }
+                break;
+
+            case 2: {
+                Alumno a = leerAlumno();
+                alumnos = (Alumno *)realloc(alumnos, (n + 1) * sizeof(Alumno));
+                if (alumnos == NULL) {
+                    printf("Error al reasignar memoria.\n");
+                    break;
+                }
+                alumnos[n] = a;
+                n++;
+                printf("¿Desea ingresar otro registro? (1: Sí, 0: No): ");
+                int otro;
+                scanf("%d", &otro);
+                if (otro == 0) {
+                    guardarDatos(alumnos, n);
+                }
+                break;
+            }
+
+            case 0;
+                printf("Saliendo del programa...\n");
+                break;
+
+            default:
+                printf("Opción no válida. Intente de nuevo.\n");
+                break;
+        }
+    } while (opcion != 0);
+
+    free(alumnos);
+    return 0;
+}
